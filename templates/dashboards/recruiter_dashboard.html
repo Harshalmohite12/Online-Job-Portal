@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+    <div>
+        <h2 style="margin-bottom: 0.5rem;">Recruiter Dashboard</h2>
+        <p style="color: var(--text-secondary);">Manage your job postings and applicants.</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="{% url 'update_recruiter_profile' %}" class="btn btn-secondary">Edit Company Profile</a>
+        <a href="{% url 'job_create' %}" class="btn">Post a New Job</a>
+    </div>
+</div>
+
+<h3 style="margin-bottom: 1rem;">My Posted Jobs</h3>
+{% if jobs %}
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Type</th>
+                    <th>Posted On</th>
+                    <th>Deadline</th>
+                    <th>Applicants</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a></td>
+                    <td>{{ job.get_job_type_display }}</td>
+                    <td>{{ job.created_at|date:"M d, Y" }}</td>
+                    <td>{{ job.application_deadline|date:"M d, Y" }}</td>
+                    <td><span class="badge">{{ job.applications.count }}</span></td>
+                    <td>
+                        <a href="{% url 'job_applicants' job.pk %}" class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.875rem;">View Applicants</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p>You haven't posted any jobs yet.</p>
+        <a href="{% url 'job_create' %}" class="btn" style="margin-top: 1rem;">Post Your First Job</a>
+    </div>
+{% endif %}
+{% endblock %}

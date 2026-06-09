@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto; text-align: center;">
+    <h2 style="margin-bottom: 1rem; color: var(--danger);">Delete Job</h2>
+    <p style="margin-bottom: 1.5rem;">Are you sure you want to delete the job "<strong>{{ object.title }}</strong>"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a href="{% url 'job_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

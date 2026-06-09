@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'recruiter_dashboard' %}" style="display: inline-block; margin-bottom: 1rem;">&larr; Back to Dashboard</a>
+    <h2>Applicants for: {{ job.title }}</h2>
+</div>
+
+{% if applications %}
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Applicant Name</th>
+                    <th>Email</th>
+                    <th>Applied On</th>
+                    <th>Resume</th>
+                    <th>Status</th>
+                    <th>Update Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>{{ app.applicant.user.first_name }} {{ app.applicant.user.last_name }}</td>
+                    <td>{{ app.applicant.user.email }}</td>
+                    <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if app.resume %}
+                            <a href="{{ app.resume.url }}" target="_blank">View Resume</a>
+                        {% else %}
+                            No resume attached
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge" style="
+                            {% if app.status == 'PENDING' %}background: rgba(245, 158, 11, 0.2); color: #fbbf24;
+                            {% elif app.status == 'REVIEWED' %}background: rgba(59, 130, 246, 0.2); color: #60a5fa;
+                            {% elif app.status == 'SHORTLISTED' %}background: rgba(16, 185, 129, 0.2); color: #34d399;
+                            {% elif app.status == 'REJECTED' %}background: rgba(239, 68, 68, 0.2); color: #f87171;{% endif %}
+                        ">{{ app.get_status_display }}</span>
+                    </td>
+                    <td>
+                        <form action="{% url 'update_application_status' app.pk %}" method="post" style="display: flex; gap: 0.5rem;">
+                            {% csrf_token %}
+                            <select name="status" style="padding: 0.3rem; border-radius: 4px;">
+                                <option value="PENDING" {% if app.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                <option value="REVIEWED" {% if app.status == 'REVIEWED' %}selected{% endif %}>Reviewed</option>
+                                <option value="SHORTLISTED" {% if app.status == 'SHORTLISTED' %}selected{% endif %}>Shortlisted</option>
+                                <option value="REJECTED" {% if app.status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                            </select>
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.3rem 0.6rem;">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <p>No applications have been submitted for this job yet.</p>
+    </div>
+{% endif %}
+{% endblock %}

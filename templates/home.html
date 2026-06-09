@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero">
+    <h1>Find Your Next Career Move</h1>
+    <p>Connect with top employers and discover opportunities that match your skills.</p>
+    <form action="{% url 'job_list' %}" method="get" style="max-width: 600px; margin: 0 auto; display: flex; gap: 1rem;">
+        <input type="text" name="q" placeholder="Job title, keywords, or company" style="flex: 1;">
+        <button type="submit" class="btn">Search Jobs</button>
+    </form>
+</div>
+{% endblock %}

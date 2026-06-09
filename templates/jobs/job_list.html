@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>Available Jobs</h2>
+    {% if user.role == 'RECRUITER' %}
+        <a href="{% url 'job_create' %}" class="btn">Post a New Job</a>
+    {% endif %}
+</div>
+
+<form method="get" style="display: flex; gap: 1rem; margin-bottom: 2rem; background: var(--surface); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border);">
+    <input type="text" name="q" placeholder="Job title or keywords" value="{{ request.GET.q }}">
+    <input type="text" name="location" placeholder="Location" value="{{ request.GET.location }}">
+    <button type="submit" class="btn">Filter</button>
+</form>
+
+<div class="job-grid">
+    {% for job in jobs %}
+        <div class="job-card">
+            <h3 class="job-title">{{ job.title }}</h3>
+            <div class="job-meta">
+                <span class="badge">{{ job.get_job_type_display }}</span>
+                <span>📍 {{ job.location }}</span>
+                <span>🏢 {{ job.recruiter.company_name }}</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; flex: 1;">
+                {{ job.description|truncatewords:20 }}
+            </p>
+            <a href="{% url 'job_detail' job.pk %}" class="btn btn-secondary">View Details</a>
+        </div>
+    {% empty %}
+        <p>No jobs found.</p>
+    {% endfor %}
+</div>
+{% endblock %}
