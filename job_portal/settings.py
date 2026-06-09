@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-ac(=n09at1y-o((@2&8a)tzskg8s8+7v5@sw4$0c@1c^kl82qc"
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-ac(=n09at1y-o((@2&8a)tzskg8s8+7v5@sw4$0c@1c^kl82qc")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+else:
+    ALLOWED_HOSTS.append('*')
 
 
 # Application definition
@@ -45,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -82,6 +91,11 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Use Render's PostgreSQL if DATABASE_URL is set
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 # MySQL Configuration (uncomment and replace with your credentials to use MySQL)
 # DATABASES = {
@@ -135,6 +149,19 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# The directory where collectstatic will collect static files for deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Configure WhiteNoise static files storage
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 
 # Media files (uploaded by users)
 MEDIA_URL = '/media/'
